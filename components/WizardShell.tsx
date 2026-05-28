@@ -24,9 +24,9 @@ function renderStep(key: StepKey, props: StepProps) {
     case "gmail":     return <StepGmail {...props} />
     case "slack":     return <StepSlack {...props} />
     case "supabase":  return <StepSupabase {...props} />
-    case "calendly":   return <StepCalendly {...props} />
-    case "wordpress":  return <StepWordPress {...props} />
-    case "launch":     return <StepLaunch {...props} />
+    case "calendly":  return <StepCalendly {...props} />
+    case "wordpress": return <StepWordPress {...props} />
+    case "launch":    return <StepLaunch {...props} />
   }
 }
 
@@ -45,53 +45,80 @@ export default function WizardShell({ config }: { config: ClientConfig }) {
 
   const stepProps: StepProps = { config, onComplete: handleComplete, collected }
   const progress = step / (steps.length - 1)
+  const color = config.primaryColor
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-start py-12 px-4">
-      {/* Header */}
-      <div className="mb-10 text-center">
-        <div
-          className="inline-block px-4 py-1 rounded-full text-white text-sm font-medium mb-4"
-          style={{ backgroundColor: config.primaryColor }}
-        >
-          Setup Wizard
+    <div
+      className="min-h-screen flex flex-col"
+      style={{ backgroundColor: "#f7f9f5", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
+    >
+      {/* Top bar */}
+      <div
+        className="w-full py-4 px-6 flex items-center justify-between"
+        style={{ backgroundColor: color }}
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-white font-bold text-lg tracking-wide">{config.name.toUpperCase()}</span>
+          <span
+            className="text-xs px-2 py-0.5 rounded-full font-medium"
+            style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "white" }}
+          >
+            AI Setup
+          </span>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900">{config.name}</h1>
-        <p className="text-gray-500 mt-2">Connect your accounts to activate the AI triage system</p>
+        <span className="text-white text-sm opacity-70">
+          Step {Math.min(step + 1, steps.length)} of {steps.length}
+        </span>
       </div>
 
-      {/* Progress */}
-      <div className="w-full max-w-2xl mb-8">
-        <div className="flex items-start justify-between mb-3">
-          {steps.map((key, i) => (
-            <div key={key} className="flex flex-col items-center flex-1">
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all"
-                style={{
-                  backgroundColor: i <= step ? config.primaryColor : "#e5e7eb",
-                  color: i <= step ? "white" : "#9ca3af",
-                  opacity: i <= step ? 1 : 0.5,
-                }}
-              >
-                {i < step ? "✓" : i + 1}
+      <div className="flex-1 flex flex-col items-center justify-start py-10 px-4">
+        {/* Progress stepper */}
+        <div className="w-full max-w-2xl mb-8">
+          <div className="flex items-start justify-between mb-3">
+            {steps.map((key, i) => (
+              <div key={key} className="flex flex-col items-center flex-1">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 border-2"
+                  style={{
+                    backgroundColor: i < step ? color : i === step ? color : "white",
+                    borderColor: i <= step ? color : "#d1d5db",
+                    color: i <= step ? "white" : "#9ca3af",
+                  }}
+                >
+                  {i < step ? "✓" : i + 1}
+                </div>
+                <span
+                  className="text-xs mt-1.5 text-center leading-tight max-w-[56px]"
+                  style={{ color: i <= step ? "#1f2937" : "#9ca3af", fontWeight: i === step ? 600 : 400 }}
+                >
+                  {STEP_LABELS[key]}
+                </span>
               </div>
-              <span className={`text-xs mt-1 text-center ${i <= step ? "text-gray-700 font-medium" : "text-gray-400"}`}>
-                {STEP_LABELS[key]}
-              </span>
-            </div>
-          ))}
-        </div>
-        <div className="h-1 bg-gray-200 rounded-full">
-          <div
-            className="h-1 rounded-full transition-all duration-500"
-            style={{ width: `${progress * 100}%`, backgroundColor: config.primaryColor }}
-          />
-        </div>
-      </div>
+            ))}
+          </div>
 
-      {/* Step content */}
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-        {step < steps.length && renderStep(currentKey, stepProps)}
+          {/* Progress bar */}
+          <div className="h-1 bg-gray-200 rounded-full mt-2">
+            <div
+              className="h-1 rounded-full transition-all duration-500"
+              style={{ width: `${progress * 100}%`, backgroundColor: color }}
+            />
+          </div>
+        </div>
+
+        {/* Card */}
+        <div className="w-full max-w-2xl bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Card accent bar */}
+          <div className="h-1" style={{ backgroundColor: color }} />
+          <div className="p-8">
+            {step < steps.length && renderStep(currentKey, stepProps)}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <p className="mt-6 text-xs text-gray-400">
+          Secured session · credentials are never stored
+        </p>
       </div>
     </div>
   )
