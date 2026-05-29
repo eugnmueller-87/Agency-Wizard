@@ -10,6 +10,8 @@ Internal onboarding wizard for deploying AI automation systems to clients in a s
 
 **Live:** [onboard.eugenmueller.tech](https://onboard.eugenmueller.tech)
 
+![Agency Wizard screenshot](screenshot.png)
+
 ---
 
 ## What it does
