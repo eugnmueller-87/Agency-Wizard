@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server"
 export async function POST(req: NextRequest) {
   const { token } = await req.json()
 
-  if (!token?.startsWith("xoxb-")) {
-    return NextResponse.json({ error: "Token should start with xoxb-" }, { status: 400 })
+  if (!token?.trim()) {
+    return NextResponse.json({ error: "Token is required" }, { status: 400 })
   }
 
   try {

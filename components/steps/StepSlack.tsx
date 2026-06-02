@@ -3,9 +3,11 @@
 import { useState } from "react"
 import { StepProps } from "../WizardShell"
 
-export default function StepSlack({ config, onComplete }: StepProps) {
-  const [token, setToken] = useState("")
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+export default function StepSlack({ config, collected, onComplete }: StepProps) {
+  const [token, setToken] = useState(collected.slack_bot_token || "")
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
+    collected.slack_bot_token ? "success" : "idle"
+  )
   const [error, setError] = useState("")
 
   async function validate() {
@@ -76,7 +78,7 @@ export default function StepSlack({ config, onComplete }: StepProps) {
         type="password"
         placeholder="xoxb-..."
         value={token}
-        onChange={(e) => setToken(e.target.value)}
+        onChange={(e) => { setToken(e.target.value); setStatus("idle") }}
         className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm mb-4 focus:outline-none"
         onKeyDown={(e) => e.key === "Enter" && validate()}
       />
@@ -84,12 +86,12 @@ export default function StepSlack({ config, onComplete }: StepProps) {
       {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
       <button
-        onClick={validate}
-        disabled={!token.trim() || status === "loading" || status === "success"}
+        onClick={status === "success" ? () => onComplete({ slack_bot_token: token }) : validate}
+        disabled={!token.trim() || status === "loading"}
         className="w-full py-2.5 rounded-lg text-white font-medium text-sm transition-opacity disabled:opacity-50"
         style={{ backgroundColor: config.primaryColor }}
       >
-        {status === "loading" ? "Validating..." : status === "success" ? "✓ Connected" : "Validate & Continue"}
+        {status === "loading" ? "Validating..." : status === "success" ? "✓ Continue" : "Validate & Continue"}
       </button>
     </div>
   )

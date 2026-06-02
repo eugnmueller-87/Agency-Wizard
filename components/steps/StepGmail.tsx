@@ -3,9 +3,11 @@
 import { useState } from "react"
 import { StepProps } from "../WizardShell"
 
-export default function StepGmail({ config, onComplete }: StepProps) {
-  const [clientId, setClientId] = useState("")
-  const [clientSecret, setClientSecret] = useState("")
+export default function StepGmail({ config, collected, onComplete }: StepProps) {
+  const [clientId, setClientId] = useState(collected.gmail_client_id || "")
+  const [clientSecret, setClientSecret] = useState(collected.gmail_client_secret || "")
+
+  const ready = clientId.trim().length > 10 && clientSecret.trim().length > 10
 
   function handleContinue() {
     onComplete({
@@ -13,8 +15,6 @@ export default function StepGmail({ config, onComplete }: StepProps) {
       gmail_client_secret: clientSecret.trim(),
     })
   }
-
-  const ready = clientId.trim() && clientSecret.trim()
 
   return (
     <div>
@@ -29,19 +29,19 @@ export default function StepGmail({ config, onComplete }: StepProps) {
       <p className="text-sm text-gray-600 mb-4 bg-gray-50 rounded-lg px-4 py-3 border border-gray-100">
         The system monitors <strong>{config.gmailAccounts.join(" and ")}</strong> for incoming messages.
         Gmail connects via OAuth2 — you provide the Client ID and Secret from Google Cloud, and n8n handles
-        the actual login after setup. Your password is never touched.
-        <br /><br />
-        <strong>One-time setup:</strong> These credentials come from the Google Cloud project already configured for Metabelly.
+        the actual login after setup.
       </p>
 
       <ol className="text-sm text-gray-600 mb-5 space-y-2 list-decimal list-inside">
         <li>Go to <strong>console.cloud.google.com</strong> → select the <strong>Metabelly</strong> project</li>
-        <li>APIs &amp; Services → <strong>Credentials</strong></li>
+        <li>Navigate to <strong>APIs &amp; Services → Credentials</strong></li>
         <li>Click the existing <strong>OAuth 2.0 Client ID</strong> (type: Web application)</li>
         <li>Copy the <strong>Client ID</strong> and <strong>Client Secret</strong> below</li>
       </ol>
 
-      <label className="block text-sm font-medium text-gray-700 mb-1">Client ID</label>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Client ID <span className="text-gray-400 font-normal">(ends in .apps.googleusercontent.com)</span>
+      </label>
       <input
         type="text"
         placeholder="123456789-abc...apps.googleusercontent.com"
@@ -50,7 +50,9 @@ export default function StepGmail({ config, onComplete }: StepProps) {
         className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm mb-3 focus:outline-none"
       />
 
-      <label className="block text-sm font-medium text-gray-700 mb-1">Client Secret</label>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Client Secret <span className="text-gray-400 font-normal">(starts with GOCSPX-)</span>
+      </label>
       <input
         type="password"
         placeholder="GOCSPX-..."
@@ -60,7 +62,7 @@ export default function StepGmail({ config, onComplete }: StepProps) {
       />
 
       <div className="bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 text-sm text-blue-800 mb-5">
-        <strong>After launch:</strong> Open n8n → find each Gmail credential → click <em>Connect</em> → log in with the respective Google account. This completes the OAuth flow inside n8n directly.
+        <strong>After launch:</strong> Open n8n → find each Gmail credential → click <em>Sign in with Google</em> → log in with the correct account. One click per inbox.
       </div>
 
       <button
@@ -69,7 +71,7 @@ export default function StepGmail({ config, onComplete }: StepProps) {
         className="w-full py-2.5 rounded-lg text-white font-medium text-sm transition-opacity disabled:opacity-50"
         style={{ backgroundColor: config.primaryColor }}
       >
-        Continue
+        {collected.gmail_client_id ? "✓ Continue" : "Save & Continue"}
       </button>
     </div>
   )

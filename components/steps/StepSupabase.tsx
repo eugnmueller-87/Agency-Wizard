@@ -3,10 +3,12 @@
 import { useState } from "react"
 import { StepProps } from "../WizardShell"
 
-export default function StepSupabase({ config, onComplete }: StepProps) {
-  const [url, setUrl] = useState("")
-  const [key, setKey] = useState("")
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+export default function StepSupabase({ config, collected, onComplete }: StepProps) {
+  const [url, setUrl] = useState(collected.supabase_url || "")
+  const [key, setKey] = useState(collected.supabase_anon_key || "")
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
+    collected.supabase_url ? "success" : "idle"
+  )
   const [error, setError] = useState("")
 
   async function validate() {
@@ -49,7 +51,8 @@ export default function StepSupabase({ config, onComplete }: StepProps) {
       <ol className="text-sm text-gray-600 mb-5 space-y-2 list-decimal list-inside">
         <li>Go to <a href="https://supabase.com" target="_blank" rel="noreferrer" className="text-blue-600 underline font-medium">supabase.com</a> → <strong>New project</strong></li>
         <li>Choose <strong>Frankfurt (eu-central-1)</strong> as the region</li>
-        <li>Go to <strong>Project Settings → API</strong> → copy the <strong>Project URL</strong> and <strong>anon public</strong> key</li>
+        <li>Go to <strong>Project Settings → API</strong></li>
+        <li>Copy the <strong>Project URL</strong> (starts with <code className="bg-gray-100 px-1 rounded">https://</code>) and the <strong>anon public</strong> key (starts with <code className="bg-gray-100 px-1 rounded">eyJ</code>)</li>
       </ol>
 
       <label className="block text-sm font-medium text-gray-700 mb-1">Project URL</label>
@@ -57,7 +60,7 @@ export default function StepSupabase({ config, onComplete }: StepProps) {
         type="text"
         placeholder="https://xxxxxxxxxxxx.supabase.co"
         value={url}
-        onChange={(e) => setUrl(e.target.value)}
+        onChange={(e) => { setUrl(e.target.value); setStatus("idle") }}
         className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm mb-3 focus:outline-none"
       />
 
@@ -66,19 +69,19 @@ export default function StepSupabase({ config, onComplete }: StepProps) {
         type="password"
         placeholder="eyJ..."
         value={key}
-        onChange={(e) => setKey(e.target.value)}
+        onChange={(e) => { setKey(e.target.value); setStatus("idle") }}
         className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm mb-4 focus:outline-none"
       />
 
       {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
       <button
-        onClick={validate}
-        disabled={!url.trim() || !key.trim() || status === "loading" || status === "success"}
+        onClick={status === "success" ? () => onComplete({ supabase_url: url, supabase_anon_key: key }) : validate}
+        disabled={!url.trim() || !key.trim() || status === "loading"}
         className="w-full py-2.5 rounded-lg text-white font-medium text-sm transition-opacity disabled:opacity-50"
         style={{ backgroundColor: config.primaryColor }}
       >
-        {status === "loading" ? "Connecting..." : status === "success" ? "✓ Connected" : "Validate & Continue"}
+        {status === "loading" ? "Connecting..." : status === "success" ? "✓ Continue" : "Validate & Continue"}
       </button>
     </div>
   )
