@@ -9,6 +9,7 @@ import StepSlack from "./steps/StepSlack"
 import StepSupabase from "./steps/StepSupabase"
 import StepCalendly from "./steps/StepCalendly"
 import StepWordPress from "./steps/StepWordPress"
+import StepChecklist from "./steps/StepChecklist"
 import StepLaunch from "./steps/StepLaunch"
 
 export interface StepProps {
@@ -25,8 +26,9 @@ function renderStep(key: StepKey, props: StepProps) {
     case "slack":     return <StepSlack {...props} />
     case "supabase":  return <StepSupabase {...props} />
     case "calendly":  return <StepCalendly {...props} />
-    case "wordpress": return <StepWordPress {...props} />
-    case "launch":    return <StepLaunch {...props} />
+    case "wordpress":  return <StepWordPress {...props} />
+    case "checklist":  return <StepChecklist {...props} />
+    case "launch":     return <StepLaunch {...props} />
   }
 }
 

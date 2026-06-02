@@ -1,4 +1,4 @@
-export type StepKey = "n8n" | "mistral" | "gmail" | "slack" | "supabase" | "calendly" | "wordpress" | "launch"
+export type StepKey = "n8n" | "mistral" | "gmail" | "slack" | "supabase" | "calendly" | "wordpress" | "checklist" | "launch"
 
 export interface ClientConfig {
   name: string
@@ -22,7 +22,7 @@ const clients: Record<string, ClientConfig> = {
       "03-auto-reply",
       "04-daily-briefing",
     ],
-    steps: ["n8n", "mistral", "gmail", "slack", "supabase", "calendly", "wordpress", "launch"],
+    steps: ["n8n", "mistral", "gmail", "slack", "supabase", "calendly", "wordpress", "checklist", "launch"],
   },
 }
 
@@ -34,6 +34,7 @@ export const STEP_LABELS: Record<StepKey, string> = {
   supabase: "Supabase",
   calendly: "Calendly",
   wordpress: "WordPress",
+  checklist: "Checklist",
   launch: "Launch",
 }
 
