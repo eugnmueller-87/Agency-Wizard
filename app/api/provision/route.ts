@@ -91,32 +91,19 @@ export async function POST(req: NextRequest) {
       log.push(ok ? "✓ Slack credential saved" : "✗ Slack credential failed")
     }
 
-    if (credentials.gmail_support_token) {
-      const ok = await upsertN8nCredential(
-        n8nUrl, n8nApiKey,
-        `Gmail — ${config.gmailAccounts[0]}`,
-        "gmailOAuth2",
-        {
-          clientId: credentials.gmail_client_id,
-          clientSecret: credentials.gmail_client_secret,
-          oauthTokenData: credentials.gmail_support_token,
-        }
-      )
-      log.push(ok ? `✓ Gmail ${config.gmailAccounts[0]} saved` : `✗ Gmail ${config.gmailAccounts[0]} failed`)
-    }
-
-    if (credentials.gmail_info_token && config.gmailAccounts[1]) {
-      const ok = await upsertN8nCredential(
-        n8nUrl, n8nApiKey,
-        `Gmail — ${config.gmailAccounts[1]}`,
-        "gmailOAuth2",
-        {
-          clientId: credentials.gmail_client_id,
-          clientSecret: credentials.gmail_client_secret,
-          oauthTokenData: credentials.gmail_info_token,
-        }
-      )
-      log.push(ok ? `✓ Gmail ${config.gmailAccounts[1]} saved` : `✗ Gmail ${config.gmailAccounts[1]} failed`)
+    if (credentials.gmail_client_id) {
+      for (const email of config.gmailAccounts) {
+        const ok = await upsertN8nCredential(
+          n8nUrl, n8nApiKey,
+          `Gmail — ${email}`,
+          "gmailOAuth2",
+          {
+            clientId: credentials.gmail_client_id,
+            clientSecret: credentials.gmail_client_secret,
+          }
+        )
+        log.push(ok ? `✓ Gmail ${email} credential saved` : `✗ Gmail ${email} failed`)
+      }
     }
 
     if (credentials.supabase_url) {

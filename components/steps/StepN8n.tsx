@@ -6,7 +6,9 @@ import { StepProps } from "../WizardShell"
 export default function StepN8n({ config, collected, onComplete }: StepProps) {
   const [url, setUrl] = useState(collected.n8n_url || "")
   const [apiKey, setApiKey] = useState(collected.n8n_api_key || "")
-  const [status, setStatus] = useState<"idle" | "checking" | "ok" | "error">("idle")
+  const [status, setStatus] = useState<"idle" | "checking" | "ok" | "error">(
+    collected.n8n_url && collected.n8n_api_key ? "ok" : "idle"
+  )
   const [errorMsg, setErrorMsg] = useState("")
 
   async function validate() {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ClientConfig, STEP_LABELS, StepKey } from "@/clients.config"
 import StepN8n from "./steps/StepN8n"
 import StepMistral from "./steps/StepMistral"
@@ -30,12 +30,35 @@ function renderStep(key: StepKey, props: StepProps) {
   }
 }
 
+function storageKey(slug: string) {
+  return `wizard_${slug}`
+}
+
 export default function WizardShell({ config }: { config: ClientConfig }) {
   const [step, setStep] = useState(0)
   const [collected, setCollected] = useState<Record<string, string>>({})
+  const [restored, setRestored] = useState(false)
 
-  const steps = config.steps
-  const currentKey = steps[step]
+  // Restore progress from sessionStorage on mount
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(storageKey(config.slug))
+      if (saved) {
+        const { step: s, collected: c } = JSON.parse(saved)
+        setStep(s ?? 0)
+        setCollected(c ?? {})
+      }
+    } catch {}
+    setRestored(true)
+  }, [config.slug])
+
+  // Persist progress whenever step or collected changes
+  useEffect(() => {
+    if (!restored) return
+    try {
+      sessionStorage.setItem(storageKey(config.slug), JSON.stringify({ step, collected }))
+    } catch {}
+  }, [step, collected, restored, config.slug])
 
   function handleComplete(data: Record<string, string>) {
     const updated = { ...collected, ...data }
@@ -43,9 +66,19 @@ export default function WizardShell({ config }: { config: ClientConfig }) {
     setStep((s) => s + 1)
   }
 
+  function resetWizard() {
+    try { sessionStorage.removeItem(storageKey(config.slug)) } catch {}
+    setStep(0)
+    setCollected({})
+  }
+
+  const steps = config.steps
+  const currentKey = steps[step]
   const stepProps: StepProps = { config, onComplete: handleComplete, collected }
   const progress = step / (steps.length - 1)
   const color = config.primaryColor
+
+  if (!restored) return null
 
   return (
     <div
@@ -66,9 +99,19 @@ export default function WizardShell({ config }: { config: ClientConfig }) {
             AI Setup
           </span>
         </div>
-        <span className="text-white text-sm opacity-70">
-          Step {Math.min(step + 1, steps.length)} of {steps.length}
-        </span>
+        <div className="flex items-center gap-4">
+          <span className="text-white text-sm opacity-70">
+            Step {Math.min(step + 1, steps.length)} of {steps.length}
+          </span>
+          {step > 0 && step < steps.length && (
+            <button
+              onClick={resetWizard}
+              className="text-xs opacity-50 hover:opacity-80 text-white underline"
+            >
+              Reset
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-start py-10 px-4">
@@ -108,7 +151,6 @@ export default function WizardShell({ config }: { config: ClientConfig }) {
 
         {/* Card */}
         <div className="w-full max-w-2xl bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          {/* Card accent bar */}
           <div className="h-1" style={{ backgroundColor: color }} />
           <div className="p-8">
             {step < steps.length && renderStep(currentKey, stepProps)}

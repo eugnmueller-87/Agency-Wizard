@@ -3,9 +3,11 @@
 import { useState } from "react"
 import { StepProps } from "../WizardShell"
 
-export default function StepMistral({ config, onComplete }: StepProps) {
-  const [key, setKey] = useState("")
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+export default function StepMistral({ config, collected, onComplete }: StepProps) {
+  const [key, setKey] = useState(collected.mistral_api_key || "")
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
+    collected.mistral_api_key ? "success" : "idle"
+  )
   const [error, setError] = useState("")
 
   async function validate() {
