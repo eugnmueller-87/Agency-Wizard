@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server"
 export async function POST(req: NextRequest) {
   const { apiKey } = await req.json()
 
-  if (!apiKey?.startsWith("sk-") && !apiKey?.startsWith("ms-")) {
-    return NextResponse.json({ error: "Key should start with sk- or ms-" }, { status: 400 })
+  if (!apiKey?.trim()) {
+    return NextResponse.json({ error: "API key is required" }, { status: 400 })
   }
 
   try {
