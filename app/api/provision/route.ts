@@ -72,13 +72,19 @@ export async function POST(req: NextRequest) {
 
   try {
     if (credentials.mistral_api_key) {
-      const ok = await upsertN8nCredential(
+      const ok1 = await upsertN8nCredential(
         n8nUrl, n8nApiKey,
         `Mistral Cloud ${config.name}`,
         "mistralCloudApi",
         { apiKey: credentials.mistral_api_key }
       )
-      log.push(ok ? "✓ Mistral credential saved" : "✗ Mistral credential failed")
+      const ok2 = await upsertN8nCredential(
+        n8nUrl, n8nApiKey,
+        "Mistral API Key",
+        "httpHeaderAuth",
+        { name: "Authorization", value: `Bearer ${credentials.mistral_api_key}` }
+      )
+      log.push(ok1 && ok2 ? "✓ Mistral credential saved" : "✗ Mistral credential failed")
     }
 
     if (credentials.slack_bot_token) {

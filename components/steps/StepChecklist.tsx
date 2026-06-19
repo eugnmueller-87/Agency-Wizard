@@ -3,13 +3,6 @@
 import { useState } from "react"
 import { StepProps } from "../WizardShell"
 
-const WORKFLOWS = [
-  { file: "01-email-triage.json", label: "01 — Email Triage" },
-  { file: "02-slack-notify.json", label: "02 — Slack Notify" },
-  { file: "03-auto-reply.json",   label: "03 — Auto Reply" },
-  { file: "04-daily-briefing.json", label: "04 — Daily Briefing" },
-]
-
 const ITEMS = [
   {
     id: "workflows_imported",
@@ -60,25 +53,6 @@ export default function StepChecklist({ config, onComplete }: StepProps) {
       <p className="text-sm text-gray-600 mb-4 bg-gray-50 rounded-lg px-4 py-3 border border-gray-100">
         All credentials are collected. Before activating, confirm each item below — otherwise workflows will fail after launch.
       </p>
-
-      {/* Workflow downloads */}
-      <div className="border border-gray-200 rounded-lg p-4 mb-4">
-        <p className="text-sm font-medium text-gray-800 mb-3">Download & import workflows into n8n first:</p>
-        <div className="grid grid-cols-2 gap-2">
-          {WORKFLOWS.map((wf) => (
-            <a
-              key={wf.file}
-              href={`/workflows/${wf.file}`}
-              download={wf.file}
-              className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-sm hover:border-gray-400 transition-colors"
-            >
-              <span className="text-base">⬇️</span>
-              <span className="text-gray-700 font-medium text-xs">{wf.label}</span>
-            </a>
-          ))}
-        </div>
-        <p className="text-xs text-gray-400 mt-2">n8n → Workflows → ⋯ → Import → upload each file → tag all with <code className="bg-gray-100 px-1 rounded">metabelly</code></p>
-      </div>
 
       {/* Checklist items */}
       <div className="space-y-2 mb-6">

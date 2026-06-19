@@ -41,10 +41,10 @@ export default function WizardShell({ config }: { config: ClientConfig }) {
   const [collected, setCollected] = useState<Record<string, string>>({})
   const [restored, setRestored] = useState(false)
 
-  // Restore progress from sessionStorage on mount
+  // Restore progress from localStorage on mount
   useEffect(() => {
     try {
-      const saved = sessionStorage.getItem(storageKey(config.slug))
+      const saved = localStorage.getItem(storageKey(config.slug))
       if (saved) {
         const { step: s, collected: c } = JSON.parse(saved)
         setStep(s ?? 0)
@@ -58,7 +58,7 @@ export default function WizardShell({ config }: { config: ClientConfig }) {
   useEffect(() => {
     if (!restored) return
     try {
-      sessionStorage.setItem(storageKey(config.slug), JSON.stringify({ step, collected }))
+      localStorage.setItem(storageKey(config.slug), JSON.stringify({ step, collected }))
     } catch {}
   }, [step, collected, restored, config.slug])
 
@@ -68,8 +68,16 @@ export default function WizardShell({ config }: { config: ClientConfig }) {
     setStep((s) => s + 1)
   }
 
+  function goBack() {
+    setStep((s) => Math.max(0, s - 1))
+  }
+
+  function skipStep() {
+    setStep((s) => s + 1)
+  }
+
   function resetWizard() {
-    try { sessionStorage.removeItem(storageKey(config.slug)) } catch {}
+    try { localStorage.removeItem(storageKey(config.slug)) } catch {}
     setStep(0)
     setCollected({})
   }
@@ -79,6 +87,10 @@ export default function WizardShell({ config }: { config: ClientConfig }) {
   const stepProps: StepProps = { config, onComplete: handleComplete, collected }
   const progress = step / (steps.length - 1)
   const color = config.primaryColor
+  const isFirst = step === 0
+  const isLast = step === steps.length - 1
+  const isLaunch = currentKey === "launch"
+  const isChecklist = currentKey === "checklist"
 
   if (!restored) return null
 
@@ -158,6 +170,27 @@ export default function WizardShell({ config }: { config: ClientConfig }) {
             {step < steps.length && renderStep(currentKey, stepProps)}
           </div>
         </div>
+
+        {/* Back / Skip row */}
+        {!isLaunch && (
+          <div className="w-full max-w-2xl flex justify-between mt-3">
+            <button
+              onClick={goBack}
+              disabled={isFirst}
+              className="text-sm text-gray-400 hover:text-gray-600 disabled:opacity-0 disabled:pointer-events-none transition-colors"
+            >
+              ← Back
+            </button>
+            {!isChecklist && (
+              <button
+                onClick={skipStep}
+                className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                Skip →
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Footer */}
         <p className="mt-6 text-xs text-gray-400">

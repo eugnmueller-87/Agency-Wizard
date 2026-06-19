@@ -101,13 +101,39 @@ export default function StepN8n({ config, collected, onComplete }: StepProps) {
       )}
 
       {status === "ok" && (
-        <button
-          onClick={() => onComplete({ n8n_url: url.trim().replace(/\/$/, ""), n8n_api_key: apiKey.trim() })}
-          className="w-full py-2.5 rounded-lg text-white font-medium text-sm transition-opacity"
-          style={{ backgroundColor: config.primaryColor }}
-        >
-          Continue
-        </button>
+        <>
+          <div className="border border-gray-200 rounded-lg p-4 mb-4">
+            <p className="text-sm font-medium text-gray-800 mb-1">Import workflows into n8n now</p>
+            <p className="text-xs text-gray-400 mb-3">
+              Download all 4 files → in n8n: <strong>Workflows → ⋯ → Import</strong> → upload each one → tag all with <code className="bg-gray-100 px-1 rounded">metabelly</code>
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { file: "01-email-triage.json",   label: "01 — Email Triage" },
+                { file: "02-slack-notify.json",    label: "02 — Slack Notify" },
+                { file: "03-auto-reply.json",      label: "03 — Auto Reply" },
+                { file: "04-daily-briefing.json",  label: "04 — Daily Briefing" },
+              ].map((wf) => (
+                <a
+                  key={wf.file}
+                  href={`/workflows/${wf.file}`}
+                  download={wf.file}
+                  className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-xs hover:border-gray-400 transition-colors text-gray-700 font-medium"
+                >
+                  <span>⬇️</span>
+                  {wf.label}
+                </a>
+              ))}
+            </div>
+          </div>
+          <button
+            onClick={() => onComplete({ n8n_url: url.trim().replace(/\/$/, ""), n8n_api_key: apiKey.trim() })}
+            className="w-full py-2.5 rounded-lg text-white font-medium text-sm transition-opacity"
+            style={{ backgroundColor: config.primaryColor }}
+          >
+            Workflows imported — Continue
+          </button>
+        </>
       )}
     </div>
   )
